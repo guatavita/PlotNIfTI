@@ -16,6 +16,20 @@ from PlotScrollNumpyArrays.Plot_Scroll_Images import plot_scroll_Image
 from IOTools.IOTools import ImageReaderWriter
 
 
+def compute_centroid(annotation):
+    '''
+    :param annotation: A binary image of shape [# images, # rows, # cols, channels]
+    :return: index of centroid
+    '''
+    indexes = np.where(np.any(annotation, axis=(1, 2)) == True)[0]
+    index_slice = int(np.mean(indexes))
+    indexes = np.where(np.any(annotation, axis=(0, 2)) == True)[0]
+    index_row = int(np.mean(indexes))
+    indexes = np.where(np.any(annotation, axis=(0, 1)) == True)[0]
+    index_col = int(np.mean(indexes))
+    return (index_slice, index_row, index_col)
+
+
 class PlotNifti(object):
     def __init__(self, image_path, segmentation_paths=None, output_path=None, show_contour=True, show_filled=True,
                  transparency=0.25, get_at_centroid=True, view='sagittal'):
@@ -40,7 +54,6 @@ class PlotNifti(object):
         self.convert_images()
         self.create_location()
         self.generate_plot()
-        xxx = 1
 
     def load_data(self):
         image_loader = self.dataloader(filepath=self.image_path)
@@ -83,17 +96,24 @@ class PlotNifti(object):
 
     def create_location(self):
         zsize, xsize, ysize = self.data_dict['image_np'].shape
+        if self.get_at_centroid:
+            centroid = compute_centroid(sitk.GetArrayFromImage(self.data_dict['segmentation_0']))
+        else:
+            centroid = None
 
         if self.view is 'axial':
-            self.loc_tuple = int(zsize / 2), slice(0, xsize), slice(0, ysize)
+            axial_index = centroid[0] if centroid else int(zsize / 2)
+            self.loc_tuple = axial_index, slice(0, xsize), slice(0, ysize)
             self.figsize = [xsize, ysize]
             self.imshow_option = {'origin': 'upper'}
         if self.view is 'sagittal':
-            self.loc_tuple = slice(0, zsize), slice(0, xsize), int(ysize / 2)
+            sagittal_index = centroid[2] if centroid else int(ysize / 2)
+            self.loc_tuple = slice(0, zsize), slice(0, xsize), sagittal_index
             self.figsize = [xsize, zsize]
             self.imshow_option = {'origin': 'lower'}
         if self.view is 'coronal':
-            self.loc_tuple = slice(0, zsize), int(xsize / 2), slice(0, ysize)
+            coronal_index = centroid[1] if centroid else int(xsize / 2)
+            self.loc_tuple = slice(0, zsize), coronal_index, slice(0, ysize)
             self.figsize = [ysize, zsize]
             self.imshow_option = {'origin': 'lower'}
 
