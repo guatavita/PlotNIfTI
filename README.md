@@ -8,8 +8,12 @@
 
 ## General info
 
-| Features                                    | Status              |
-|---------------------------------------------|---------------------|
+| Features                        | Status              |
+|---------------------------------|---------------------|
+| list of segmentation            | :white_check_mark:  |
+| align to centroid of first seg. | :white_check_mark:  |
+| Show filled with transparency   | :white_check_mark:  |
+| Show contour                    | :white_check_mark:  |
 
 Bastien Rigaud, PhD Laboratoire Traitement du Signal et de l'Image (LTSI), INSERM U1099 Campus de Beaulieu, Université
 de Rennes 1 35042 Rennes, FRANCE bastien.rigaud@univ-rennes1.fr
