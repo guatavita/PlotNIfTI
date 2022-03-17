@@ -19,6 +19,7 @@ from Resample_Class.src.NiftiResampler.ResampleTools import ImageResampler
 
 plt.style.use('dark_background')
 
+
 def compute_centroid(annotation):
     '''
     :param annotation: A binary image of shape [# images, # rows, # cols, channels]
@@ -171,8 +172,10 @@ class PlotNifti(object):
         if self.show_filled or self.show_contour or self.segmentation_names:
             # mmin = np.min(self.data_dict['segmentation_label'])
             mmax = np.max(self.data_dict['segmentation_label'])
-            # LinearSegmentedColormap = mpl.colors.LinearSegmentedColormap.from_list
-            # mask_cm = LinearSegmentedColormap('colormap', plt.cm.Set1(range(mmin, mmax)), mmax)
+            if mmax != len(self.segmentation_names):
+                print("WARNING, segmentation_names truncated because max value from segmentation map is different\n"
+                      "Max value: {}, len of segmentation_names {}".format(mmax, len(self.segmentation_names)))
+                self.segmentation_names = self.segmentation_names[0:mmax]
             base = plt.cm.get_cmap('jet')
             color_list = base(np.linspace(0, 1, mmax, 1))
             mask_cm = plt.cm.colors.ListedColormap(color_list, 'Segmentation', mmax)
@@ -182,19 +185,20 @@ class PlotNifti(object):
             segmentation_label = segmentation_label.astype(np.float)
             segmentation_label[segmentation_label == 0] = np.nan
             plt.imshow(segmentation_label, interpolation='none', cmap=mask_cm, alpha=self.transparency, vmin=1,
-                       vmax=np.max(self.data_dict['segmentation_label'])+1, **self.imshow_option)
+                       vmax=np.max(self.data_dict['segmentation_label']) + 1, **self.imshow_option)
 
         if self.show_contour:
             contour_label = self.data_dict['contour_label'][self.loc_tuple]
             contour_label = contour_label.astype(np.float)
             contour_label[contour_label == 0] = np.nan
             plt.imshow(contour_label, interpolation='none', cmap=mask_cm, vmin=1,
-                       vmax=np.max(self.data_dict['segmentation_label'])+1, **self.imshow_option, )
+                       vmax=np.max(self.data_dict['segmentation_label']) + 1, **self.imshow_option, )
 
         if self.segmentation_names:
             cbar = plt.colorbar(shrink=0.5)
-            cbar.ax.set_yticks(np.arange(1,mmax+1,1)+0.5)
-            cbar.ax.set_yticklabels(['{} - {}'.format(i, name) for i, name in enumerate(self.segmentation_names, start=1)])
+            cbar.ax.set_yticks(np.arange(1, mmax + 1, 1) + 0.5)
+            cbar.ax.set_yticklabels(
+                ['{} - {}'.format(i, name) for i, name in enumerate(self.segmentation_names, start=1)])
             cbar.ax.tick_params(labelsize=20)
 
         plt.axis('off')
