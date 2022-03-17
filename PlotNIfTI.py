@@ -96,10 +96,13 @@ class PlotNifti(object):
 
     def create_location(self):
         zsize, xsize, ysize = self.data_dict['image_np'].shape
+        centroid = None
         if self.get_at_centroid:
-            centroid = compute_centroid(sitk.GetArrayFromImage(self.data_dict['segmentation_0']))
-        else:
-            centroid = None
+            segmentation = self.data_dict.get('segmentation_0')
+            if segmentation:
+                centroid = compute_centroid(sitk.GetArrayFromImage(segmentation))
+            else:
+                print("WARNING: segmentation not found for centroid")
 
         if self.view is 'axial':
             axial_index = centroid[0] if centroid else int(zsize / 2)
@@ -140,7 +143,7 @@ class PlotNifti(object):
         plt.axis('off')
         plt.tight_layout(pad=0)
         plt.margins(0, 0)
-        # plt.imshow()
+        # plt.show()
 
         if self.output_path is not None:
             fig.savefig(self.output_path, format='png')

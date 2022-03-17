@@ -10,7 +10,7 @@
 
 | Features                        | Status              |
 |---------------------------------|---------------------|
-| List of segmentation            | :white_check_mark:  |
+| List of segmentations           | :white_check_mark:  |
 | Align to centroid of first seg. | :white_check_mark:  |
 | Show filled with transparency   | :white_check_mark:  |
 | Show contour                    | :white_check_mark:  |
