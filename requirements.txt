@@ -4,3 +4,6 @@ SimpleITK
 opencv-python
 matplotlib
 NiftiResampler
+vtk
+pyvista
+pyacvd
