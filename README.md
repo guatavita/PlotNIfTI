@@ -34,15 +34,22 @@ de Rennes 1 35042 Rennes, FRANCE bastien.rigaud@univ-rennes1.fr
 from PlotNIfTI import PlotNifti
 
 def main():
-    image_path = r"C:\Data\Data_test\plot\image.nii.gz"
-    segmentation_paths = [r"C:\Data\Data_test\plot\Prostate.nii.gz",
-                          r"C:\Data\Data_test\plot\Bladder.nii.gz",
-                          r"C:\Data\Data_test\plot\Rectum.nii.gz"]
+    image_path = r"C:\Data\Data_test\plot_cervix_ct\image.nii.gz"
+    segmentation_paths = [r"C:\Data\Data_test\plot_cervix_ct\CTVT.nii.gz",
+                          r"C:\Data\Data_test\plot_cervix_ct\Bladder.nii.gz",
+                          r"C:\Data\Data_test\plot_cervix_ct\Rectum.nii.gz",
+                          r"C:\Data\Data_test\plot_cervix_ct\Sigmoid.nii.gz",
+                          r"C:\Data\Data_test\plot_cervix_ct\BowelBag.nii.gz"]
+    # segmentation_names is optional, but usefull to add a colormap
+    plot_object = PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths,
+              show_contour=True, show_filled=True, transparency=0.20, get_at_centroid=True,
+              segmentation_names=['CTVT', 'Bladder', 'Rectum', 'Sigmoid', 'BowelBag'])
 
-    for view in ['axial', 'sagittal', 'coronal']:
-        output_path = r"example\screenshot_{}.png".format(view)
-        PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths, output_path=output_path, view=view,
-                  show_contour=True, show_filled=True, transparency=0.20, get_at_centroid=True)
+    for view in ['sagittal', 'axial', 'coronal']:
+        output_path = r"C:\Data\Data_test\plot_cervix_ct\screenshot_{}.png".format(view)
+        plot_object.set_view(view)
+        plot_object.set_output_path(output_path)
+        plot_object.generate_plot()
 ```
 
 ## Dependencies
