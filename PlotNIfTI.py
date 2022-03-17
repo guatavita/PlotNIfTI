@@ -122,7 +122,7 @@ class PlotNifti(object):
         fig = plt.figure(figsize=figsize)
         plt.axis("equal")
 
-        plt.imshow(self.data_dict['image_np'][self.loc_tuple], cmap=cm.gray, **self.imshow_option)
+        plt.imshow(self.data_dict['image_np'][self.loc_tuple], cmap=cm.gray, vmin=0, vmax=255, **self.imshow_option)
 
         if self.show_filled:
             segmentation_label = self.data_dict['segmentation_label'][self.loc_tuple]

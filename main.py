@@ -13,9 +13,11 @@ def main():
     segmentation_paths = [r"C:\Data\Data_test\plot\Prostate.nii.gz",
                           r"C:\Data\Data_test\plot\Bladder.nii.gz",
                           r"C:\Data\Data_test\plot\Rectum.nii.gz"]
-    output_path = r"C:\Data\Data_test\plot\screenshot.png"
-    PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths, output_path=output_path, view='sagittal',
-              get_at_centroid=True)
+
+    for view in ['axial', 'sagittal', 'coronal']:
+        output_path = r"example\screenshot_{}.png".format(view)
+        PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths, output_path=output_path, view=view,
+                  get_at_centroid=True)
 
 if __name__ == '__main__':
     main()

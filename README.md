@@ -16,6 +16,12 @@ de Rennes 1 35042 Rennes, FRANCE bastien.rigaud@univ-rennes1.fr
 
 ## Example
 
+<p align="center">
+<img src="example/screenshot_axial.png" height=200>    
+<img src="example/screenshot_sagittal.png" height=200>
+<img src="example/screenshot_coronal.png" height=200>
+</p>
+
 ```
 ```
 
