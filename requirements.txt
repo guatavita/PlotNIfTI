@@ -1,0 +1,6 @@
+numpy
+PlotScrollNumpyArrays
+SimpleITK
+opencv-python
+matplotlib
+NiftiResampler
