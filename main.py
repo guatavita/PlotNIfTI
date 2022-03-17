@@ -17,7 +17,7 @@ def main():
     for view in ['axial', 'sagittal', 'coronal']:
         output_path = r"example\screenshot_{}.png".format(view)
         PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths, output_path=output_path, view=view,
-                  get_at_centroid=True)
+                  show_contour=True, show_filled=True, transparency=0.20, get_at_centroid=True)
 
 if __name__ == '__main__':
     main()
