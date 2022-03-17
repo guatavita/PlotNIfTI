@@ -1,3 +1,6 @@
 [submodule "IOTools"]
 	path = IOTools
 	url = https://github.com/guatavita/IOTools.git
+[submodule "Resample_Class"]
+	path = Resample_Class
+	url = https://github.com/guatavita/Resample_Class.git

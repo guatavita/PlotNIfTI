@@ -15,7 +15,7 @@ import matplotlib.colors as colors
 from PlotScrollNumpyArrays.Plot_Scroll_Images import plot_scroll_Image
 from IOTools.IOTools import ImageReaderWriter
 
-from NiftiResampler.ResampleTools import ImageResampler
+from Resample_Class.src.NiftiResampler.ResampleTools import ImageResampler
 
 
 def compute_centroid(annotation):
@@ -78,9 +78,11 @@ class PlotNifti(object):
                     interpolator = 'Nearest'
                 else:
                     interpolator = 'Linear'
+                empty_value = np.min(sitk.GetArrayFromImage(self.data_dict[img_key]))
                 self.data_dict[img_key] = resampler.resample_image(self.data_dict[img_key],
                                                                    output_spacing=(1.0, 1.0, 1.0),
-                                                                   interpolator=interpolator)
+                                                                   interpolator=interpolator,
+                                                                   empty_value=empty_value)
 
     def compute_contour(self):
         for seg_key in [i for i in self.data_dict.keys() if 'segmentation' in i]:
