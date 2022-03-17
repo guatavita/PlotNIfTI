@@ -9,12 +9,13 @@
 from PlotNIfTI import PlotNifti
 
 def main():
-
     image_path = r"C:\Data\Data_test\plot\image.nii.gz"
     segmentation_paths = [r"C:\Data\Data_test\plot\Prostate.nii.gz",
                           r"C:\Data\Data_test\plot\Bladder.nii.gz",
                           r"C:\Data\Data_test\plot\Rectum.nii.gz"]
-    plotter = PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths, view='sagittal')
+    output_path = r"C:\Data\Data_test\plot\screenshot.png"
+    PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths, output_path=output_path, view='sagittal',
+              get_at_centroid=True)
 
 if __name__ == '__main__':
     main()

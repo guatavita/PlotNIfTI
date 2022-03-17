@@ -32,7 +32,7 @@ def compute_centroid(annotation):
 
 class PlotNifti(object):
     def __init__(self, image_path, segmentation_paths=None, output_path=None, show_contour=True, show_filled=True,
-                 transparency=0.25, get_at_centroid=True, view='sagittal'):
+                 transparency=0.20, get_at_centroid=True, view='sagittal'):
         if segmentation_paths is None:
             segmentation_paths = []
         self.image_path = image_path
@@ -138,8 +138,9 @@ class PlotNifti(object):
             plt.imshow(contour_label, interpolation='none', cmap=cm.jet, **self.imshow_option)
 
         plt.axis('off')
-        plt.tight_layout()
-        plt.show()
+        plt.tight_layout(pad=0)
+        plt.margins(0, 0)
+        # plt.imshow()
 
         if self.output_path is not None:
-            fig.savefig(self.output_path)
+            fig.savefig(self.output_path, format='png')
