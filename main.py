@@ -15,7 +15,6 @@ def main():
                           r"C:\Data\Data_test\plot_cervix_ct\Rectum.nii.gz",
                           r"C:\Data\Data_test\plot_cervix_ct\Sigmoid.nii.gz",
                           r"C:\Data\Data_test\plot_cervix_ct\BowelBag.nii.gz"]
-    segmentation_paths = [r"C:\Data\Data_test\plot_cervix_ct\CTVT.nii.gz"]
     # segmentation_names is optional, but usefull to add a colormap
     plot_object = PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths,
               show_contour=True, show_filled=True, transparency=0.20, get_at_centroid=True,
