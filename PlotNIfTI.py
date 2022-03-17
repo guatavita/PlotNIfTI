@@ -17,6 +17,7 @@ from IOTools.IOTools import ImageReaderWriter
 
 from Resample_Class.src.NiftiResampler.ResampleTools import ImageResampler
 
+plt.style.use('dark_background')
 
 def compute_centroid(annotation):
     '''
@@ -61,6 +62,7 @@ class PlotNifti(object):
             raise ValueError('View is not recognized, possible choice [axial,sagittal,coronal]')
         self.view = view
         self.intensity_range = intensity_range
+        self.segmentation_names = segmentation_names
         self.data_dict = {}
         self.dataloader = ImageReaderWriter
 
@@ -69,8 +71,12 @@ class PlotNifti(object):
         self.compute_contour()
         self.create_labels()
         self.convert_images()
-        self.create_location()
-        self.generate_plot()
+
+    def set_output_path(self, output_path):
+        self.output_path = output_path
+
+    def set_view(self, view):
+        self.view = view
 
     def load_data(self):
         image_loader = self.dataloader(filepath=self.image_path)
@@ -137,23 +143,24 @@ class PlotNifti(object):
             else:
                 print("WARNING: segmentation not found for centroid")
 
-        if self.view is 'axial':
+        if self.view == 'axial':
             axial_index = centroid[0] if centroid else int(zsize / 2)
             self.loc_tuple = axial_index, slice(0, xsize), slice(0, ysize)
             self.figsize = [xsize, ysize]
             self.imshow_option = {'origin': 'upper'}
-        if self.view is 'sagittal':
+        if self.view == 'sagittal':
             sagittal_index = centroid[2] if centroid else int(ysize / 2)
             self.loc_tuple = slice(0, zsize), slice(0, xsize), sagittal_index
             self.figsize = [xsize, zsize]
             self.imshow_option = {'origin': 'lower'}
-        if self.view is 'coronal':
+        if self.view == 'coronal':
             coronal_index = centroid[1] if centroid else int(xsize / 2)
             self.loc_tuple = slice(0, zsize), coronal_index, slice(0, ysize)
             self.figsize = [ysize, zsize]
             self.imshow_option = {'origin': 'lower'}
 
     def generate_plot(self, dpi=45, margin=0.05):
+        self.create_location()
         figsize = (1 + margin) * self.figsize[0] / dpi, \
                   (1 + margin) * self.figsize[1] / dpi
         fig = plt.figure(figsize=figsize)
@@ -161,18 +168,34 @@ class PlotNifti(object):
 
         plt.imshow(self.data_dict['image_np'][self.loc_tuple], cmap=cm.gray, vmin=0, vmax=255, **self.imshow_option)
 
+        if self.show_filled or self.show_contour or self.segmentation_names:
+            # mmin = np.min(self.data_dict['segmentation_label'])
+            mmax = np.max(self.data_dict['segmentation_label'])
+            # LinearSegmentedColormap = mpl.colors.LinearSegmentedColormap.from_list
+            # mask_cm = LinearSegmentedColormap('colormap', plt.cm.Set1(range(mmin, mmax)), mmax)
+            base = plt.cm.get_cmap('jet')
+            color_list = base(np.linspace(0, 1, mmax, 1))
+            mask_cm = plt.cm.colors.ListedColormap(color_list, 'Segmentation', mmax)
+
         if self.show_filled:
             segmentation_label = self.data_dict['segmentation_label'][self.loc_tuple]
             segmentation_label = segmentation_label.astype(np.float)
             segmentation_label[segmentation_label == 0] = np.nan
-            plt.imshow(segmentation_label, interpolation='none', cmap=cm.jet, alpha=self.transparency,
-                       **self.imshow_option)
+            plt.imshow(segmentation_label, interpolation='none', cmap=mask_cm, alpha=self.transparency, vmin=1,
+                       vmax=np.max(self.data_dict['segmentation_label'])+1, **self.imshow_option)
 
         if self.show_contour:
             contour_label = self.data_dict['contour_label'][self.loc_tuple]
             contour_label = contour_label.astype(np.float)
             contour_label[contour_label == 0] = np.nan
-            plt.imshow(contour_label, interpolation='none', cmap=cm.jet, **self.imshow_option)
+            plt.imshow(contour_label, interpolation='none', cmap=mask_cm, vmin=1,
+                       vmax=np.max(self.data_dict['segmentation_label'])+1, **self.imshow_option, )
+
+        if self.segmentation_names:
+            cbar = plt.colorbar(shrink=0.5)
+            cbar.ax.set_yticks(np.arange(1,mmax+1,1)+0.5)
+            cbar.ax.set_yticklabels(['{} - {}'.format(i, name) for i, name in enumerate(self.segmentation_names, start=1)])
+            cbar.ax.tick_params(labelsize=20)
 
         plt.axis('off')
         plt.tight_layout(pad=0)
