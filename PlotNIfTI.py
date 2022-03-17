@@ -15,6 +15,8 @@ import matplotlib.colors as colors
 from PlotScrollNumpyArrays.Plot_Scroll_Images import plot_scroll_Image
 from IOTools.IOTools import ImageReaderWriter
 
+from NiftiResampler.ResampleTools import ImageResampler
+
 
 def compute_centroid(annotation):
     '''
@@ -32,7 +34,7 @@ def compute_centroid(annotation):
 
 class PlotNifti(object):
     def __init__(self, image_path, segmentation_paths=None, output_path=None, show_contour=True, show_filled=True,
-                 transparency=0.20, get_at_centroid=True, view='sagittal'):
+                 transparency=0.20, get_at_centroid=True, view='sagittal', intensity_range=[-1000, 1500]):
         if segmentation_paths is None:
             segmentation_paths = []
         self.image_path = image_path
@@ -45,10 +47,12 @@ class PlotNifti(object):
         if view not in ['axial', 'sagittal', 'coronal']:
             raise ValueError('View is not recognized, possible choice [axial,sagittal,coronal]')
         self.view = view
+        self.intensity_range = intensity_range
         self.data_dict = {}
         self.dataloader = ImageReaderWriter
 
         self.load_data()
+        self.resample_data()
         self.compute_contour()
         self.create_labels()
         self.convert_images()
@@ -65,6 +69,18 @@ class PlotNifti(object):
         for i, segmentation_path in enumerate(self.segmentation_paths):
             temp_loader = self.dataloader(filepath=segmentation_path)
             self.data_dict['segmentation_{}'.format(i)] = temp_loader.import_data()
+
+    def resample_data(self):
+        if self.data_dict['image'].GetSpacing() != (1.0, 1.0, 1.0):
+            for img_key in ['image'] + [i for i in self.data_dict.keys() if 'segmentation' in i]:
+                resampler = ImageResampler()
+                if 'segmentation' in img_key:
+                    interpolator = 'Nearest'
+                else:
+                    interpolator = 'Linear'
+                self.data_dict[img_key] = resampler.resample_image(self.data_dict[img_key],
+                                                                   output_spacing=(1.0, 1.0, 1.0),
+                                                                   interpolator=interpolator)
 
     def compute_contour(self):
         for seg_key in [i for i in self.data_dict.keys() if 'segmentation' in i]:
@@ -90,6 +106,8 @@ class PlotNifti(object):
 
     def convert_images(self):
         image_np = sitk.GetArrayFromImage(self.data_dict['image'])
+        image_np[image_np < self.intensity_range[0]] = self.intensity_range[0]
+        image_np[image_np > self.intensity_range[1]] = self.intensity_range[1]
         image_np = (image_np - np.min(image_np)) / (np.max(image_np) - np.min(image_np))
         image_np *= 255
         self.data_dict['image_np'] = image_np
@@ -121,7 +139,8 @@ class PlotNifti(object):
             self.imshow_option = {'origin': 'lower'}
 
     def generate_plot(self, dpi=45, margin=0.05):
-        figsize = (1 + margin) * self.figsize[0] / dpi, (1 + margin) * self.figsize[1] / dpi
+        figsize = (1 + margin) * self.figsize[0] / dpi, \
+                  (1 + margin) * self.figsize[1] / dpi
         fig = plt.figure(figsize=figsize)
         plt.axis("equal")
 
