@@ -34,7 +34,20 @@ def compute_centroid(annotation):
 
 class PlotNifti(object):
     def __init__(self, image_path, segmentation_paths=None, output_path=None, show_contour=True, show_filled=True,
-                 transparency=0.20, get_at_centroid=True, view='sagittal', intensity_range=[-1000, 1500]):
+                 transparency=0.20, get_at_centroid=True, view='sagittal', intensity_range=[-1000, 1500],
+                 segmentation_names=[]):
+        '''
+        :param image_path: image path
+        :param segmentation_paths: list of segmentation nifti paths
+        :param output_path: output path to save the image as png
+        :param show_contour: True/False to show contour
+        :param show_filled: True/False to show mask
+        :param transparency: 0-1.0 filled segmentation transparency
+        :param get_at_centroid: True to force the position to the centroid of the first segmentation
+        :param view: view selection, ['axial', 'sagittal', 'coronal']
+        :param intensity_range: list to arbitrary crop the intensity values
+        :param segmentation_names: OPTIONAL, if provided will create a colormap with the correspondiung label name
+        '''
         if segmentation_paths is None:
             segmentation_paths = []
         self.image_path = image_path
