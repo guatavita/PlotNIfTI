@@ -15,6 +15,7 @@
 | Show filled with transparency   | :white_check_mark:  |
 | Show contour                    | :white_check_mark:  |
 | Seg. list for colormap          | :white_check_mark:  |
+| Crop CT/CBCT using body         | :white_check_mark:  |
 
 Bastien Rigaud, PhD Laboratoire Traitement du Signal et de l'Image (LTSI), INSERM U1099 Campus de Beaulieu, Université
 de Rennes 1 35042 Rennes, FRANCE bastien.rigaud@univ-rennes1.fr
