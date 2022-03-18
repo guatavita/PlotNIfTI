@@ -53,6 +53,42 @@ def main():
         plot_object.generate_plot()
 ```
 
+Example to run PlotNifti in with threading and to lock the "generate_plot()" function because Matplotlib is not thread safe.
+
+```python
+import os
+from threading import Thread, Lock
+from multiprocessing import cpu_count
+from queue import *
+
+lock = Lock()
+
+from PlotNIfTI.PlotNIfTI import PlotNifti
+
+
+def worker_def(A):
+    q = A
+    while True:
+        item = q.get()
+        if item is None:
+            break
+        else:
+            image_path, segmentation_paths, output_dir, segmentation_names, views = item
+            try:
+                plot_object = PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths,
+                                        show_contour=True, show_filled=True, transparency=0.20,
+                                        get_at_centroid=True, segmentation_names=segmentation_names, crop_scan=True)
+                for view in views:
+                    plot_object.set_view(view)
+                    plot_object.set_output_path(os.path.join(output_dir, 'screenshot_{}.png'.format(view)))
+                    lock.acquire()
+                    plot_object.generate_plot()
+                    lock.release()
+            except:
+                print('     failed on {}'.format(image_path))
+            q.task_done()
+```
+
 ## Dependencies
 
 ```
