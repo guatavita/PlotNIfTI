@@ -7,6 +7,7 @@
 # Description:
 
 import sys, os
+import gc
 import numpy as np
 import copy
 import SimpleITK as sitk
@@ -22,6 +23,7 @@ from Resample_Class.src.NiftiResampler.ResampleTools import ImageResampler
 from Image_Processors_Utils.Image_Processor_Utils import compute_centroid, create_external, compute_bounding_box
 
 plt.style.use('dark_background')
+mpl.use('Agg')
 
 
 class PlotNifti(object):
@@ -230,4 +232,12 @@ class PlotNifti(object):
         # plt.show()
         if self.output_path is not None:
             fig.savefig(self.output_path, format='png')
+        # Clear the current axes.
+        plt.cla()
+        # Clear the current figure.
+        fig.clf()
         plt.clf()
+        # Closes all the figure windows.
+        plt.close('all')
+        plt.close(fig)
+        gc.collect()
