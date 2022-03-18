@@ -228,6 +228,6 @@ class PlotNifti(object):
         plt.tight_layout(pad=0)
         plt.margins(0, 0)
         # plt.show()
-
         if self.output_path is not None:
             fig.savefig(self.output_path, format='png')
+        plt.clf()
