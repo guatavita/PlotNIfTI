@@ -8,6 +8,7 @@
 
 from PlotNIfTI import PlotNifti
 
+
 def main():
     image_path = r"C:\Data\Data_test\plot_cervix_ct\image.nii.gz"
     segmentation_paths = [r"C:\Data\Data_test\plot_cervix_ct\CTVT.nii.gz",
@@ -15,12 +16,17 @@ def main():
                           r"C:\Data\Data_test\plot_cervix_ct\Rectum.nii.gz",
                           r"C:\Data\Data_test\plot_cervix_ct\Sigmoid.nii.gz",
                           r"C:\Data\Data_test\plot_cervix_ct\BowelBag.nii.gz"]
-    # segmentation_names is optional, but usefull to add a colormap
-    plot_object = PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths,
-              show_contour=True, show_filled=True, transparency=0.20, get_at_centroid=True,
-              segmentation_names=['CTVT', 'Bladder', 'Rectum', 'Sigmoid', 'BowelBag'])
 
-    for view in ['sagittal', 'axial', 'coronal']:
+    views = ['sagittal', 'axial', 'coronal']
+    views = ['axial']
+    # segmentation_names is optional, but usefull to add a colormap
+    segmentation_names = ['CTVT', 'Bladder', 'Rectum', 'Sigmoid', 'BowelBag']
+    segmentation_names = None
+    plot_object = PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths,
+                            show_contour=True, show_filled=True, transparency=0.20, get_at_centroid=True,
+                            segmentation_names=segmentation_names)
+
+    for view in views:
         output_path = r"C:\Data\Data_test\plot_cervix_ct\screenshot_{}.png".format(view)
         plot_object.set_view(view)
         plot_object.set_output_path(output_path)
@@ -35,6 +41,7 @@ def main():
     #     output_path = r"C:\Data\Data_test\plot\screenshot_{}.png".format(view)
     #     PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths, output_path=output_path, view=view,
     #               show_contour=True, show_filled=True, transparency=0.20, get_at_centroid=True)
+
 
 if __name__ == '__main__':
     main()

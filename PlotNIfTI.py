@@ -7,6 +7,7 @@
 # Description:
 
 import numpy as np
+import copy
 import SimpleITK as sitk
 import matplotlib as mpl
 import matplotlib.cm as cm
@@ -157,16 +158,17 @@ class PlotNifti(object):
         zsize, xsize, ysize = self.data_dict['image_np'].shape
         centroid = None
         if self.get_at_centroid:
-            segmentation = self.data_dict.get('segmentation_0')
-            if segmentation:
-                centroid = compute_centroid(sitk.GetArrayFromImage(segmentation))
+            segmentation = copy.deepcopy(self.data_dict.get('segmentation_label'))
+            segmentation[segmentation > 1] = 0  # keep only the first label
+            if self.data_dict.get('segmentation_0'):
+                centroid = compute_centroid(segmentation)
             else:
                 print("WARNING: segmentation not found for centroid")
 
         if self.view == 'axial':
             axial_index = centroid[0] if centroid else int(zsize / 2)
             self.loc_tuple = axial_index, slice(0, xsize), slice(0, ysize)
-            self.figsize = [xsize, ysize]
+            self.figsize = [ysize, xsize]
             self.imshow_option = {'origin': 'upper'}
         if self.view == 'sagittal':
             sagittal_index = centroid[2] if centroid else int(ysize / 2)
@@ -218,7 +220,7 @@ class PlotNifti(object):
             cbar.ax.set_yticks(np.arange(1, mmax + 1, 1) + 0.5)
             cbar.ax.set_yticklabels(
                 ['{} - {}'.format(i, name) for i, name in enumerate(self.segmentation_names, start=1)])
-            cbar.ax.tick_params(labelsize=20)
+            cbar.ax.tick_params(labelsize=15)
 
         plt.axis('off')
         plt.tight_layout(pad=0)
