@@ -6,6 +6,7 @@
 # bastien.rigaud@univ-rennes1.fr
 # Description:
 
+import sys, os
 import numpy as np
 import copy
 import SimpleITK as sitk
@@ -14,8 +15,9 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from PlotScrollNumpyArrays.Plot_Scroll_Images import plot_scroll_Image
-from IOTools.IOTools import ImageReaderWriter
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
+from IOTools.IOTools import ImageReaderWriter
 from Resample_Class.src.NiftiResampler.ResampleTools import ImageResampler
 from Image_Processors_Utils.Image_Processor_Utils import compute_centroid, create_external, compute_bounding_box
 
