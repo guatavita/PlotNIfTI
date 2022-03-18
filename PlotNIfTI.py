@@ -16,22 +16,8 @@ from PlotScrollNumpyArrays.Plot_Scroll_Images import plot_scroll_Image
 from IOTools.IOTools import ImageReaderWriter
 
 from Resample_Class.src.NiftiResampler.ResampleTools import ImageResampler
-
+from Image_Processors_Utils.Image_Processor_Utils import compute_centroid, create_external
 plt.style.use('dark_background')
-
-
-def compute_centroid(annotation):
-    '''
-    :param annotation: A binary image of shape [# images, # rows, # cols, channels]
-    :return: index of centroid
-    '''
-    indexes = np.where(np.any(annotation, axis=(1, 2)) == True)[0]
-    index_slice = int(np.mean(indexes))
-    indexes = np.where(np.any(annotation, axis=(0, 2)) == True)[0]
-    index_row = int(np.mean(indexes))
-    indexes = np.where(np.any(annotation, axis=(0, 1)) == True)[0]
-    index_col = int(np.mean(indexes))
-    return (index_slice, index_row, index_col)
 
 
 class PlotNifti(object):

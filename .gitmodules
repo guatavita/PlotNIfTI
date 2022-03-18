@@ -4,3 +4,6 @@
 [submodule "Resample_Class"]
 	path = Resample_Class
 	url = https://github.com/guatavita/Resample_Class.git
+[submodule "Image_Processors_Utils"]
+	path = Image_Processors_Utils
+	url = https://github.com/guatavita/Image_Processors_Utils.git
