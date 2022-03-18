@@ -18,16 +18,14 @@ def main():
                           r"C:\Data\Data_test\plot_cervix_ct\BowelBag.nii.gz"]
 
     views = ['sagittal', 'axial', 'coronal']
-    views = ['axial']
     # segmentation_names is optional, but usefull to add a colormap
     segmentation_names = ['CTVT', 'Bladder', 'Rectum', 'Sigmoid', 'BowelBag']
-    segmentation_names = None
     plot_object = PlotNifti(image_path=image_path, segmentation_paths=segmentation_paths,
                             show_contour=True, show_filled=True, transparency=0.20, get_at_centroid=True,
                             segmentation_names=segmentation_names)
 
     for view in views:
-        output_path = r"C:\Data\Data_test\plot_cervix_ct\screenshot_{}.png".format(view)
+        output_path = r"example\screenshot_{}.png".format(view)
         plot_object.set_view(view)
         plot_object.set_output_path(output_path)
         plot_object.generate_plot()
