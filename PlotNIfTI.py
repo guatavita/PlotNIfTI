@@ -16,15 +16,16 @@ from PlotScrollNumpyArrays.Plot_Scroll_Images import plot_scroll_Image
 from IOTools.IOTools import ImageReaderWriter
 
 from Resample_Class.src.NiftiResampler.ResampleTools import ImageResampler
-from Image_Processors_Utils.Image_Processor_Utils import compute_centroid, create_external
+from Image_Processors_Utils.Image_Processor_Utils import compute_centroid, create_external, compute_bounding_box
+
 plt.style.use('dark_background')
 
 
 class PlotNifti(object):
     def __init__(self, image_path, segmentation_paths=None, output_path=None, show_contour=True, show_filled=True,
-                 transparency=0.20, get_at_centroid=True, view='sagittal', intensity_range=[-1000, 1500],
-                 segmentation_names=[]):
-        '''
+                 transparency=0.20, get_at_centroid=True, view='sagittal', intensity_range=None,
+                 segmentation_names=None, crop_scan=True, crop_margin=2):
+        """
         :param image_path: image path
         :param segmentation_paths: list of segmentation nifti paths
         :param output_path: output path to save the image as png
@@ -34,10 +35,21 @@ class PlotNifti(object):
         :param get_at_centroid: True to force the position to the centroid of the first segmentation
         :param view: view selection, ['axial', 'sagittal', 'coronal']
         :param intensity_range: list to arbitrary crop the intensity values
-        :param segmentation_names: OPTIONAL, if provided will create a colormap with the correspondiung label name
-        '''
+        :param segmentation_names: OPTIONAL, if provided will create a colormap with the corresponding label name
+        :param crop_scan: True/False to compute external body and crop the image
+        :param crop_margin: crop_scan isotropic margin
+        """
+        if segmentation_names is None:
+            segmentation_names = []
+        if intensity_range is None:
+            intensity_range = [-1000, 1500]
         if segmentation_paths is None:
             segmentation_paths = []
+        assert isinstance(segmentation_names, list), "segmentation_names needs to be a list or None"
+        assert isinstance(intensity_range, list), "intensity_range needs to be a list or None"
+        assert isinstance(segmentation_paths, list), "segmentation_paths needs to be a list or None"
+        assert view in ['axial', 'sagittal', 'coronal'], \
+            'view is not recognized, possible choice [axial,sagittal,coronal]'
         self.image_path = image_path
         self.segmentation_paths = segmentation_paths
         self.output_path = output_path
@@ -45,11 +57,11 @@ class PlotNifti(object):
         self.show_filled = show_filled
         self.transparency = transparency
         self.get_at_centroid = get_at_centroid
-        if view not in ['axial', 'sagittal', 'coronal']:
-            raise ValueError('View is not recognized, possible choice [axial,sagittal,coronal]')
         self.view = view
         self.intensity_range = intensity_range
         self.segmentation_names = segmentation_names
+        self.crop_margin = crop_margin
+
         self.data_dict = {}
         self.dataloader = ImageReaderWriter
 
@@ -57,6 +69,8 @@ class PlotNifti(object):
         self.resample_data()
         self.compute_contour()
         self.create_labels()
+        if crop_scan:
+            self.crop_by_external()
         self.convert_images()
 
     def set_output_path(self, output_path):
@@ -88,7 +102,7 @@ class PlotNifti(object):
                 self.data_dict[img_key] = resampler.resample_image(self.data_dict[img_key],
                                                                    output_spacing=(1.0, 1.0, 1.0),
                                                                    interpolator=interpolator,
-                                                                   empty_value=empty_value)
+                                                                   empty_value=int(empty_value))
 
     def compute_contour(self):
         for seg_key in [i for i in self.data_dict.keys() if 'segmentation' in i]:
@@ -112,8 +126,27 @@ class PlotNifti(object):
             contour_label[contour_np > 0] = i
         self.data_dict['contour_label'] = contour_label
 
-    def convert_images(self):
+    def crop_by_external(self):
         image_np = sitk.GetArrayFromImage(self.data_dict['image'])
+        external_mask = create_external(image_np, threshold_value=-700, mask_value=1)
+        bb_parameters = compute_bounding_box(external_mask, padding=self.crop_margin)
+        self.data_dict['image_np'] = image_np[
+                                     bb_parameters[0]:bb_parameters[1],
+                                     bb_parameters[2]:bb_parameters[3],
+                                     bb_parameters[4]:bb_parameters[5]]
+        for key in ['segmentation_label', 'contour_label']:
+            if key in self.data_dict.keys():
+                temp = self.data_dict.get(key)
+                self.data_dict[key] = temp[
+                                      bb_parameters[0]:bb_parameters[1],
+                                      bb_parameters[2]:bb_parameters[3],
+                                      bb_parameters[4]:bb_parameters[5]]
+
+    def convert_images(self):
+        if 'image_np' in self.data_dict.keys():
+            image_np = self.data_dict.get('image_np')
+        else:
+            image_np = sitk.GetArrayFromImage(self.data_dict['image'])
         image_np[image_np < self.intensity_range[0]] = self.intensity_range[0]
         image_np[image_np > self.intensity_range[1]] = self.intensity_range[1]
         image_np = (image_np - np.min(image_np)) / (np.max(image_np) - np.min(image_np))
