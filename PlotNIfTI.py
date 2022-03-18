@@ -195,7 +195,7 @@ class PlotNifti(object):
         if self.show_filled or self.show_contour or self.segmentation_names:
             # mmin = np.min(self.data_dict['segmentation_label'])
             mmax = np.max(self.data_dict['segmentation_label'])
-            if mmax != len(self.segmentation_names):
+            if self.segmentation_names and mmax != len(self.segmentation_names):
                 print("WARNING, segmentation_names truncated because max value from segmentation map is different\n"
                       "Max value: {}, len of segmentation_names {}".format(mmax, len(self.segmentation_names)))
                 self.segmentation_names = self.segmentation_names[0:mmax]
